@@ -1,0 +1,27 @@
+{
+  "run_name": "best_model_full_training",
+  "best_val_bleu": 39.6099,
+  "best_checkpoint": "checkpoints/best_checkpoint.pt",
+  "config": {
+    "d_model": 512,
+    "N": 3,
+    "num_heads": 8,
+    "d_ff": 2048,
+    "dropout": 0.1,
+    "batch_size": 256,
+    "num_epochs": 80,
+    "warmup_steps": 4000,
+    "label_smoothing": 0.1,
+    "scheduler_type": "noam",
+    "fixed_lr": null,
+    "use_scaling": true,
+    "pe_type": "sinusoidal",
+    "optimizer": "Adam",
+    "adam_beta1": 0.9,
+    "adam_beta2": 0.98,
+    "adam_eps": 1e-09,
+    "grad_clip": 1.0,
+    "dataset": "Multi30k (de\u2192en)"
+  },
+  "test_bleu": 39.07
+}
