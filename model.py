@@ -24,8 +24,10 @@ Design notes:
     visualisation in experiment 2.3.
 """
 
+import json
 import math
 import copy
+import os
 from typing import Optional, Tuple
 
 import torch
@@ -489,15 +491,16 @@ class Transformer(nn.Module):
 
     def __init__(
         self,
-        src_vocab_size: int,
-        tgt_vocab_size: int,
+        src_vocab_size: int   = 7853,
+        tgt_vocab_size: int   = 5893,
         d_model:    int   = 512,
-        N:          int   = 6,
+        N:          int   = 3,
         num_heads:  int   = 8,
         d_ff:       int   = 2048,
         dropout:    float = 0.1,
         pe_type:    str   = "sinusoidal",
         use_scaling: bool = True,
+        load_pretrained: bool = True,
     ) -> None:
         super().__init__()
 
@@ -542,6 +545,41 @@ class Transformer(nn.Module):
         }
 
         self._init_weights()
+
+        if load_pretrained:
+            self._load_resources()
+
+    def _load_resources(self) -> None:
+        """Load spaCy tokenizer, vocab JSON files, and pretrained weights from Google Drive."""
+        import spacy
+        try:
+            self._spacy_de = spacy.load("de_core_news_sm")
+        except OSError:
+            raise OSError("Run: python -m spacy download de_core_news_sm")
+
+        _dir = os.path.dirname(os.path.abspath(__file__))
+
+        with open(os.path.join(_dir, "vocab_src.json")) as f:
+            _src = json.load(f)
+        with open(os.path.join(_dir, "vocab_tgt.json")) as f:
+            _tgt = json.load(f)
+        self._src_stoi: dict = _src["stoi"]
+        self._src_itos: list = _src["itos"]
+        self._tgt_stoi: dict = _tgt["stoi"]
+        self._tgt_itos: list = _tgt["itos"]
+
+        _GDRIVE_FILE_ID = "10SJOX24y8yv1oMWxfDBjNsflCjfyKkXs"
+        _ckpt_path = os.path.join(_dir, "checkpoints", "best_checkpoint.pt")
+        if not os.path.exists(_ckpt_path):
+            os.makedirs(os.path.join(_dir, "checkpoints"), exist_ok=True)
+            import gdown
+            gdown.download(
+                f"https://drive.google.com/uc?id={_GDRIVE_FILE_ID}",
+                _ckpt_path,
+                quiet=False,
+            )
+        _ckpt = torch.load(_ckpt_path, map_location="cpu")
+        self.load_state_dict(_ckpt["model_state_dict"])
 
     def _init_weights(self) -> None:
         """Xavier uniform initialisation for all weight matrices."""
@@ -617,3 +655,46 @@ class Transformer(nn.Module):
         Must be called right after encode() while weights are still stored.
         """
         return self.encoder.layers[-1].self_attn.attn_weights
+
+    def infer(self, german_sentence: str) -> str:
+        """
+        End-to-end German → English translation.
+
+        Accepts a raw German string, tokenizes it with spaCy, runs the
+        Transformer forward pass with autoregressive greedy decoding, and
+        returns the translated English sentence.
+
+        Args:
+            german_sentence : Raw German input string.
+
+        Returns:
+            Translated English string.
+        """
+        device = next(self.parameters()).device
+
+        # Tokenise German sentence
+        tokens = [tok.text.lower() for tok in self._spacy_de.tokenizer(german_sentence)]
+
+        # Numericalize: <sos>=2, <eos>=3, <unk>=0
+        src_ids = [2] + [self._src_stoi.get(t, 0) for t in tokens] + [3]
+        src = torch.tensor(src_ids, dtype=torch.long).unsqueeze(0).to(device)
+        src_mask = make_src_mask(src)
+
+        # Autoregressive greedy decode
+        self.eval()
+        with torch.no_grad():
+            memory = self.encode(src, src_mask)
+            ys = torch.tensor([[2]], device=device)   # start with <sos>
+
+            for _ in range(100):
+                tgt_mask = make_tgt_mask(ys)
+                logits   = self.decode(memory, src_mask, ys, tgt_mask)
+                next_tok = logits[:, -1, :].argmax(dim=-1, keepdim=True)
+                ys = torch.cat([ys, next_tok], dim=1)
+                if next_tok.item() == 3:              # <eos>
+                    break
+
+        # Detokenise — skip <pad>=1, <sos>=2, <eos>=3
+        skip = {1, 2, 3}
+        out_tokens = [self._tgt_itos[i] for i in ys.squeeze(0).tolist() if i not in skip]
+        return " ".join(out_tokens)

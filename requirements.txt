@@ -8,3 +8,4 @@ datasets
 spacy
 sacrebleu
 tqdm
+gdown

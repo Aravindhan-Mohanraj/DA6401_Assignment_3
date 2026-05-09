@@ -739,6 +739,7 @@ def run_training_experiment(
         dropout=dropout,
         pe_type=pe_type,
         use_scaling=use_scaling,
+        load_pretrained=False,
     ).to(device)
 
     n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)

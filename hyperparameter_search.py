@@ -161,6 +161,7 @@ def run_search():
                 num_heads = cfg["num_heads"],
                 d_ff      = cfg["d_ff"],
                 dropout   = cfg["dropout"],
+                load_pretrained = False,
             ).to(device)
             load_checkpoint(ckpt_best, model)
             val_bleu = evaluate_bleu(model, val_loader, train_ds.tgt_vocab, device=device)
