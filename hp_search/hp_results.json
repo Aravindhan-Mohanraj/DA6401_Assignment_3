@@ -1,0 +1,126 @@
+{
+  "runs": {
+    "HP_tuning_1": {
+      "val_bleu": 38.6685,
+      "d_model": 256,
+      "N": 4,
+      "num_heads": 8,
+      "d_ff": 512,
+      "dropout": 0.1,
+      "warmup_steps": 4000,
+      "note": "baseline \u2014 current best",
+      "checkpoint": "hp_search/checkpoints/hp_1_best.pt"
+    },
+    "HP_tuning_2": {
+      "val_bleu": 38.1872,
+      "d_model": 256,
+      "N": 4,
+      "num_heads": 8,
+      "d_ff": 1024,
+      "dropout": 0.1,
+      "warmup_steps": 4000,
+      "note": "wider FFN (4x d_model ratio)",
+      "checkpoint": "hp_search/checkpoints/hp_2_best.pt"
+    },
+    "HP_tuning_3": {
+      "val_bleu": 19.901,
+      "d_model": 256,
+      "N": 6,
+      "num_heads": 8,
+      "d_ff": 1024,
+      "dropout": 0.1,
+      "warmup_steps": 4000,
+      "note": "deeper (6 layers) + wider FFN",
+      "checkpoint": "hp_search/checkpoints/hp_3_best.pt"
+    },
+    "HP_tuning_4": {
+      "val_bleu": 39.238,
+      "d_model": 512,
+      "N": 4,
+      "num_heads": 8,
+      "d_ff": 1024,
+      "dropout": 0.1,
+      "warmup_steps": 4000,
+      "note": "larger d_model=512, N=4",
+      "checkpoint": "hp_search/checkpoints/hp_4_best.pt"
+    },
+    "HP_tuning_5": {
+      "val_bleu": 37.2936,
+      "d_model": 512,
+      "N": 4,
+      "num_heads": 8,
+      "d_ff": 1024,
+      "dropout": 0.2,
+      "warmup_steps": 4000,
+      "note": "d_model=512 + higher dropout to fight overfitting",
+      "checkpoint": "hp_search/checkpoints/hp_5_best.pt"
+    },
+    "HP_tuning_6": {
+      "val_bleu": 22.958,
+      "d_model": 512,
+      "N": 6,
+      "num_heads": 8,
+      "d_ff": 2048,
+      "dropout": 0.1,
+      "warmup_steps": 8000,
+      "note": "original paper base model \u2014 more warmup for stability",
+      "checkpoint": "hp_search/checkpoints/hp_6_best.pt"
+    },
+    "HP_tuning_7": {
+      "val_bleu": 18.0251,
+      "d_model": 512,
+      "N": 6,
+      "num_heads": 8,
+      "d_ff": 2048,
+      "dropout": 0.2,
+      "warmup_steps": 8000,
+      "note": "paper base + dropout=0.2 for small dataset",
+      "checkpoint": "hp_search/checkpoints/hp_7_best.pt"
+    },
+    "HP_tuning_8": {
+      "val_bleu": 39.6244,
+      "d_model": 512,
+      "N": 3,
+      "num_heads": 8,
+      "d_ff": 2048,
+      "dropout": 0.1,
+      "warmup_steps": 4000,
+      "note": "shallow (3 layers) but wide FFN",
+      "checkpoint": "hp_search/checkpoints/hp_8_best.pt"
+    },
+    "HP_tuning_9": {
+      "val_bleu": 38.5585,
+      "d_model": 512,
+      "N": 4,
+      "num_heads": 16,
+      "d_ff": 1024,
+      "dropout": 0.1,
+      "warmup_steps": 4000,
+      "note": "16 attention heads (d_k=32 per head)",
+      "checkpoint": "hp_search/checkpoints/hp_9_best.pt"
+    },
+    "HP_tuning_10": {
+      "val_bleu": 15.4834,
+      "d_model": 256,
+      "N": 6,
+      "num_heads": 8,
+      "d_ff": 1024,
+      "dropout": 0.15,
+      "warmup_steps": 8000,
+      "note": "deeper model + long warmup + slight extra dropout",
+      "checkpoint": "hp_search/checkpoints/hp_10_best.pt"
+    }
+  },
+  "best_so_far": {
+    "run": "HP_tuning_8",
+    "val_bleu": 39.6244,
+    "d_model": 512,
+    "N": 3,
+    "num_heads": 8,
+    "d_ff": 2048,
+    "dropout": 0.1,
+    "warmup_steps": 4000,
+    "note": "shallow (3 layers) but wide FFN",
+    "checkpoint": "hp_search/checkpoints/hp_8_best.pt"
+  }
+}

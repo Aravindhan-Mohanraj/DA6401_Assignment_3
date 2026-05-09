@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# PyTorch checkpoints (large binary files — too large for GitHub)
+checkpoints/
+hp_search/checkpoints/
+*.pt
+*.pth
+
+# W&B local run cache
+wandb/
+
+# Machine-specific scripts
+activate_env.sh
+
+
+# Misc
+*.log
+*.csv
+*.h5

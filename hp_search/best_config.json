@@ -1,0 +1,14 @@
+{
+  "d_model": 512,
+  "N": 3,
+  "num_heads": 8,
+  "d_ff": 2048,
+  "dropout": 0.1,
+  "warmup_steps": 4000,
+  "batch_size": 256,
+  "label_smoothing": 0.1,
+  "scheduler_type": "noam",
+  "val_bleu_at_screening": 39.6244,
+  "run_name": "HP_tuning_8",
+  "note": "shallow (3 layers) but wide FFN"
+}
