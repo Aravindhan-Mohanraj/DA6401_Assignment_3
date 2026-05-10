@@ -1,5 +1,5 @@
 """
-model.py — Transformer Architecture
+model.py  Transformer Architecture
 DA6401 Assignment 3: "Attention Is All You Need"
 
 AUTOGRADER CONTRACT (DO NOT MODIFY SIGNATURES):
@@ -35,9 +35,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  STANDALONE ATTENTION FUNCTION
-# ══════════════════════════════════════════════════════════════════════
 
 def scaled_dot_product_attention(
     Q: torch.Tensor,
@@ -84,9 +82,7 @@ def scaled_dot_product_attention(
     return output, attn_weights
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  MASK HELPERS
-# ══════════════════════════════════════════════════════════════════════
 
 def make_src_mask(
     src: torch.Tensor,
@@ -136,9 +132,7 @@ def make_tgt_mask(
     return pad_mask | causal_mask
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  MULTI-HEAD ATTENTION
-# ══════════════════════════════════════════════════════════════════════
 
 class MultiHeadAttention(nn.Module):
     """
@@ -176,7 +170,7 @@ class MultiHeadAttention(nn.Module):
 
         self.dropout = nn.Dropout(p=dropout)
 
-        # Stored after every forward — used for attention heatmaps (exp 2.3)
+        # Stored after every forward  used for attention heatmaps (exp 2.3)
         self.attn_weights: Optional[torch.Tensor] = None
 
     def forward(
@@ -222,9 +216,7 @@ class MultiHeadAttention(nn.Module):
         return self.dropout(self.W_o(attn_out))  # [B, seq_q, d_model]
 
 
-# ══════════════════════════════════════════════════════════════════════
-#  POSITIONAL ENCODING — sinusoidal (registered buffer, not trainable)
-# ══════════════════════════════════════════════════════════════════════
+#  POSITIONAL ENCODING  sinusoidal (registered buffer, not trainable)
 
 class PositionalEncoding(nn.Module):
     """
@@ -266,9 +258,7 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
 
 
-# ══════════════════════════════════════════════════════════════════════
-#  POSITIONAL ENCODING — learned (nn.Embedding, for experiment 2.4)
-# ══════════════════════════════════════════════════════════════════════
+#  POSITIONAL ENCODING  learned (nn.Embedding, for experiment 2.4)
 
 class LearnedPositionalEncoding(nn.Module):
     """
@@ -293,9 +283,7 @@ class LearnedPositionalEncoding(nn.Module):
         return self.dropout(x)
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  FEED-FORWARD NETWORK
-# ══════════════════════════════════════════════════════════════════════
 
 class PositionwiseFeedForward(nn.Module):
     """
@@ -319,9 +307,7 @@ class PositionwiseFeedForward(nn.Module):
         return self.linear2(self.dropout(F.relu(self.linear1(x))))
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  ENCODER LAYER
-# ══════════════════════════════════════════════════════════════════════
 
 class EncoderLayer(nn.Module):
     """
@@ -360,9 +346,7 @@ class EncoderLayer(nn.Module):
         return x
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  DECODER LAYER
-# ══════════════════════════════════════════════════════════════════════
 
 class DecoderLayer(nn.Module):
     """
@@ -415,9 +399,7 @@ class DecoderLayer(nn.Module):
         return x
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  ENCODER & DECODER STACKS
-# ══════════════════════════════════════════════════════════════════════
 
 class Encoder(nn.Module):
     """Stack of N identical EncoderLayer modules with final LayerNorm."""
@@ -469,9 +451,7 @@ class Decoder(nn.Module):
         return self.norm(x)
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  FULL TRANSFORMER
-# ══════════════════════════════════════════════════════════════════════
 
 class Transformer(nn.Module):
     """
@@ -485,8 +465,8 @@ class Transformer(nn.Module):
         num_heads      : Number of attention heads (default 8).
         d_ff           : FFN inner dimensionality (default 2048).
         dropout        : Dropout probability (default 0.1).
-        pe_type        : 'sinusoidal' (default) or 'learned' — exp 2.4.
-        use_scaling    : Whether to use 1/√dk scaling — exp 2.2.
+        pe_type        : 'sinusoidal' (default) or 'learned'  exp 2.4.
+        use_scaling    : Whether to use 1/√dk scaling  exp 2.2.
     """
 
     def __init__(
@@ -646,7 +626,7 @@ class Transformer(nn.Module):
         memory = self.encode(src, src_mask)
         return self.decode(memory, src_mask, tgt, tgt_mask)
 
-    # ── Helpers for Part 2 visualisations ─────────────────────────────
+    # ── Helpers for Part 2 visualisations 
 
     def get_last_encoder_attn(self) -> Optional[torch.Tensor]:
         """
@@ -694,7 +674,7 @@ class Transformer(nn.Module):
                 if next_tok.item() == 3:              # <eos>
                     break
 
-        # Detokenise — skip <pad>=1, <sos>=2, <eos>=3
+        # Detokenise  skip <pad>=1, <sos>=2, <eos>=3
         skip = {1, 2, 3}
         out_tokens = [self._tgt_itos[i] for i in ys.squeeze(0).tolist() if i not in skip]
         return " ".join(out_tokens)

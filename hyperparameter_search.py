@@ -23,17 +23,17 @@ from train import run_training_experiment, load_checkpoint, evaluate_bleu
 from dataset import build_datasets, collate_fn, PAD_IDX
 from model import Transformer
 
-# ── Output folder (inside project dir) ────────────────────────────────
+#  Output folder (inside project dir) 
 RESULTS_DIR = "hp_search"
 os.makedirs(RESULTS_DIR, exist_ok=True)
 os.makedirs(os.path.join(RESULTS_DIR, "checkpoints"), exist_ok=True)
 
-# ── Search settings ───────────────────────────────────────────────────
+#  Search settings 
 SCREEN_EPOCHS = 25          # epochs per config (enough to compare fairly)
 BATCH_SIZE    = 256
 PROJECT       = "da6401-a3"
 
-# ── 10 Configurations ─────────────────────────────────────────────────
+#  10 Configurations 
 # Fixed across all: Noam scheduler, label_smoothing=0.1, sinusoidal PE
 # Varying: d_model, N, d_ff, dropout, warmup_steps
 CONFIGS = [
@@ -150,7 +150,7 @@ def run_search():
             _save_results(results, best_cfg)
             continue
 
-        # ── Evaluate best checkpoint on validation set ─────────────
+        #  Evaluate best checkpoint on validation set 
         val_bleu = 0.0
         if os.path.exists(ckpt_best):
             model = Transformer(
@@ -191,7 +191,7 @@ def run_search():
 
         _save_results(results, best_cfg)
 
-    # ── Final leaderboard ─────────────────────────────────────────────
+    #  Final leaderboard 
     print(f"\n{'='*65}")
     print("  HYPERPARAMETER SEARCH — FINAL LEADERBOARD")
     print('='*65)
@@ -204,7 +204,7 @@ def run_search():
 
     print(f"\n  Best: {best_cfg['run']}  (Val BLEU {best_bleu:.2f})")
 
-    # ── Save best config ──────────────────────────────────────────────
+    #  Save best config 
     best_out = {
         "d_model":        best_cfg["d_model"],
         "N":              best_cfg["N"],

@@ -60,9 +60,7 @@ class NoamScheduler(LRScheduler):
         return [base_lr * scale for base_lr in self.base_lrs]
 
 
-# ──────────────────────────────────────────────────────────────────────
-# Helper — do NOT modify
-# ──────────────────────────────────────────────────────────────────────
+# Helper  do NOT modify
 
 def get_lr_history(
     d_model: int,
@@ -85,9 +83,7 @@ def get_lr_history(
     return history
 
 
-# ──────────────────────────────────────────────────────────────────────
-# Quick visual check — run:  python noam_lr_scheduler.py
-# ──────────────────────────────────────────────────────────────────────
+# Quick visual check  run:  python noam_lr_scheduler.py
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt

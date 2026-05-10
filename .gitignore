@@ -4,9 +4,10 @@ __pycache__/
 *.pyo
 *.pyd
 
-# PyTorch checkpoints (large binary files — too large for GitHub)
+
 checkpoints/
 hp_search/checkpoints/
+experiments/checkpoints/
 *.pt
 *.pth
 
@@ -16,6 +17,7 @@ wandb/
 # Machine-specific scripts
 activate_env.sh
 
+experiments/
 
 # Misc
 *.log

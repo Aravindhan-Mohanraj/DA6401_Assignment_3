@@ -3,7 +3,7 @@ train.py — Training Pipeline, Inference & Evaluation
 DA6401 Assignment 3: "Attention Is All You Need"
 
 AUTOGRADER CONTRACT (DO NOT MODIFY SIGNATURES):
-  ┌─────────────────────────────────────────────────────────────────────┐
+  ┌┐
   │  greedy_decode(model, src, src_mask, max_len, start_symbol)         │
   │      → torch.Tensor  shape [1, out_len]  (token indices)            │
   │                                                                     │
@@ -12,7 +12,7 @@ AUTOGRADER CONTRACT (DO NOT MODIFY SIGNATURES):
   │                                                                     │
   │  save_checkpoint(model, optimizer, scheduler, epoch, path) → None   │
   │  load_checkpoint(path, model, optimizer, scheduler)        → int    │
-  └─────────────────────────────────────────────────────────────────────┘
+  └┘
 
 W&B logging overview (for Part 2 experiments):
   Per step (train):
@@ -76,13 +76,11 @@ from dataset import (
 from lr_scheduler import NoamScheduler, get_lr_history
 
 
-# ── Module-level global step counter (reset at each experiment) ───────
+#  Module-level global step counter (reset at each experiment) 
 _GLOBAL_STEP: int = 0
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  LABEL SMOOTHING LOSS
-# ══════════════════════════════════════════════════════════════════════
 
 class LabelSmoothingLoss(nn.Module):
     """
@@ -135,9 +133,7 @@ class LabelSmoothingLoss(nn.Module):
         return loss_per_token.sum() / n_tokens
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  TRAINING LOOP
-# ══════════════════════════════════════════════════════════════════════
 
 def run_epoch(
     data_iter,
@@ -210,7 +206,7 @@ def run_epoch(
                 optimizer.zero_grad()
                 loss.backward()
 
-                # ── Gradient norms (exp 2.2) ──────────────────────────
+                #  Gradient norms (exp 2.2) 
                 q_norms, k_norms = [], []
                 for name, param in model.named_parameters():
                     if param.grad is None:
@@ -232,7 +228,7 @@ def run_epoch(
                 if scheduler is not None:
                     scheduler.step()
 
-                # ── Prediction confidence (exp 2.5) ───────────────────
+                #  Prediction confidence (exp 2.5) 
                 with torch.no_grad():
                     probs = F.softmax(logits.view(-1, V), dim=-1)
                     gold  = tgt_output.reshape(-1)
@@ -240,7 +236,7 @@ def run_epoch(
                     non_pad = gold != PAD_IDX
                     confidence = correct_probs[non_pad].mean().item() if non_pad.any() else 0.0
 
-                # ── W&B per-step logging ───────────────────────────────
+                #  W&B per-step logging 
                 if use_wandb:
                     current_lr = (
                         scheduler.get_last_lr()[0]
@@ -273,9 +269,7 @@ def run_epoch(
     return total_loss / max(n_batches, 1)
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  GREEDY DECODING
-# ══════════════════════════════════════════════════════════════════════
 
 def greedy_decode(
     model: Transformer,
@@ -320,9 +314,7 @@ def greedy_decode(
     return ys                                        # [1, out_len]
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  BLEU EVALUATION
-# ══════════════════════════════════════════════════════════════════════
 
 def _tokens_to_str(ids, vocab, skip_ids) -> str:
     """Convert a list of token indices to a detokenised string."""
@@ -406,9 +398,7 @@ def evaluate_bleu(
     return float(score)
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  CHECKPOINT UTILITIES
-# ══════════════════════════════════════════════════════════════════════
 
 def save_checkpoint(
     model: Transformer,
@@ -469,9 +459,7 @@ def load_checkpoint(
     return int(ckpt["epoch"])
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  PART 2 HELPERS — W&B visualisations
-# ══════════════════════════════════════════════════════════════════════
 
 def _log_lr_schedule(d_model: int, warmup_steps: int, total_steps: int = 20_000) -> None:
     """Log a Noam LR schedule plot to W&B."""
@@ -590,9 +578,7 @@ def _log_translation_table(
     wandb.log({"translations": table}, step=step)
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  TRAINING SUMMARY HELPER
-# ══════════════════════════════════════════════════════════════════════
 
 def _save_training_summary(
     config: dict,
@@ -623,28 +609,26 @@ def _save_training_summary(
         json.dump(summary, f, indent=2)
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  EXPERIMENT ENTRY POINT
-# ══════════════════════════════════════════════════════════════════════
 
 def run_training_experiment(
-    # ── Architecture ──────────────────────────────────────────────────
+    #  Architecture 
     d_model: int   = 256,
     N: int         = 3,
     num_heads: int = 8,
     d_ff: int      = 512,
     dropout: float = 0.1,
-    # ── Training ──────────────────────────────────────────────────────
+    #  Training 
     batch_size: int  = 128,
     num_epochs: int  = 15,
     warmup_steps: int = 4000,
-    # ── Experiment flags (Part 2) ──────────────────────────────────────
+    #  Experiment flags (Part 2) 
     label_smoothing: float = 0.1,     # exp 2.5: 0.1 or 0.0
     scheduler_type: str   = "noam",   # exp 2.1: 'noam' or 'fixed'
     fixed_lr: float       = 1e-4,     # exp 2.1: LR when scheduler_type='fixed'
     use_scaling: bool     = True,     # exp 2.2: True or False
     pe_type: str          = "sinusoidal",  # exp 2.4: 'sinusoidal' or 'learned'
-    # ── I/O ───────────────────────────────────────────────────────────
+    #  I/O 
     checkpoint_path: str  = "checkpoints/checkpoint.pt",
     best_ckpt_path: str   = "checkpoints/best_checkpoint.pt",
     device: str           = None,
@@ -660,12 +644,12 @@ def run_training_experiment(
     global _GLOBAL_STEP
     _GLOBAL_STEP = 0
 
-    # ── Device ────────────────────────────────────────────────────────
+    #  Device 
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"[INFO] Using device: {device}")
 
-    # ── W&B init ──────────────────────────────────────────────────────
+    #  W&B init 
     config = {
         "d_model":          d_model,
         "N":                N,
@@ -698,7 +682,7 @@ def run_training_experiment(
         if scheduler_type == "noam":
             _log_lr_schedule(d_model, warmup_steps)
 
-    # ── Dataset & vocab ───────────────────────────────────────────────
+    #  Dataset & vocab 
     print("[INFO] Loading Multi30k dataset …")
     train_ds, val_ds, test_ds = build_datasets(min_freq=2)
 
@@ -728,7 +712,7 @@ def run_training_experiment(
         collate_fn=_collate, num_workers=0,
     )
 
-    # ── Model ─────────────────────────────────────────────────────────
+    #  Model 
     model = Transformer(
         src_vocab_size=len(src_vocab),
         tgt_vocab_size=len(tgt_vocab),
@@ -747,7 +731,7 @@ def run_training_experiment(
     if _WANDB_AVAILABLE and wandb.run is not None:
         wandb.config.update({"n_params": n_params})
 
-    # ── Optimizer ─────────────────────────────────────────────────────
+    #  Optimizer 
     init_lr  = 1.0 if scheduler_type == "noam" else fixed_lr
     optimizer = torch.optim.Adam(
         model.parameters(),
@@ -756,21 +740,22 @@ def run_training_experiment(
         eps=1e-9,
     )
 
-    # ── Scheduler ─────────────────────────────────────────────────────
+    #  Scheduler 
     if scheduler_type == "noam":
         scheduler = NoamScheduler(optimizer, d_model=d_model, warmup_steps=warmup_steps)
     else:
         scheduler = None   # constant LR
 
-    # ── Loss ──────────────────────────────────────────────────────────
+    #  Loss 
     loss_fn = LabelSmoothingLoss(
         vocab_size=len(tgt_vocab),
         pad_idx=PAD_IDX,
         smoothing=label_smoothing,
     )
 
-    # ── Training loop ─────────────────────────────────────────────────
+    #  Training loop 
     best_val_bleu = -1.0
+    best_epoch    = 0
     # Grab a fixed batch for the translation table each epoch
     sample_batch = next(iter(val_loader))
 
@@ -801,7 +786,7 @@ def run_training_experiment(
             f"time={elapsed:.1f}s"
         )
 
-        # ── Per-epoch W&B logging ──────────────────────────────────────
+        #  Per-epoch W&B logging 
         if _WANDB_AVAILABLE and wandb.run is not None:
             wandb.log(
                 {
@@ -827,6 +812,7 @@ def run_training_experiment(
         # Save best model
         if val_bleu > best_val_bleu:
             best_val_bleu = val_bleu
+            best_epoch    = epoch
             save_checkpoint(model, optimizer, scheduler, epoch, path=best_ckpt_path)
             print(f"  → New best val BLEU: {best_val_bleu:.2f}  (saved to {best_ckpt_path})")
 
@@ -839,14 +825,14 @@ def run_training_experiment(
                 run_name=run_name,
             )
 
-    # ── Attention heatmaps (exp 2.3) — on best model ─────────────────
+    #  Attention heatmaps (exp 2.3) — on best model 
     print("[INFO] Loading best checkpoint for attention visualisation …")
     load_checkpoint(best_ckpt_path, model)
     # Use first sentence of val set as the sample
     sample_src = sample_batch[0][0:1]
     _log_attention_heatmaps(model, sample_src, src_vocab, device)
 
-    # ── Final BLEU on test set ─────────────────────────────────────────
+    #  Final BLEU on test set 
     print("[INFO] Computing test BLEU …")
     test_bleu = evaluate_bleu(model, test_loader, tgt_vocab, device=device)
     print(f"[RESULT] Test BLEU: {test_bleu:.2f}")
@@ -875,10 +861,16 @@ def run_training_experiment(
 
     print("[INFO] Training complete.")
 
+    return {
+        "run_name":      run_name,
+        "best_val_bleu": round(best_val_bleu, 4),
+        "best_epoch":    best_epoch,
+        "test_bleu":     round(test_bleu, 4),
+        "config":        config,
+    }
 
-# ══════════════════════════════════════════════════════════════════════
+
 #  MAIN
-# ══════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
     import argparse

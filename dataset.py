@@ -31,7 +31,7 @@ from datasets import load_dataset
 import spacy
 
 
-# ── Special token constants ────────────────────────────────────────────
+#  Special token constants 
 UNK_IDX = 0
 PAD_IDX = 1
 SOS_IDX = 2
@@ -39,9 +39,7 @@ EOS_IDX = 3
 SPECIALS = ["<unk>", "<pad>", "<sos>", "<eos>"]
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  VOCABULARY
-# ══════════════════════════════════════════════════════════════════════
 
 class Vocab:
     """
@@ -69,9 +67,7 @@ class Vocab:
         return [self.stoi.get(t, unk) for t in tokens]
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  DATASET
-# ══════════════════════════════════════════════════════════════════════
 
 class Multi30kDataset(Dataset):
     def __init__(self, split: str = "train"):
@@ -111,7 +107,7 @@ class Multi30kDataset(Dataset):
         self.tgt_vocab: Vocab = None
         self.processed_data: List[Tuple[torch.Tensor, torch.Tensor]] = []
 
-    # ── Tokenisers ────────────────────────────────────────────────────
+    #  Tokenisers 
 
     def tokenize_de(self, text: str) -> List[str]:
         """Lowercase German tokenisation via spaCy."""
@@ -121,7 +117,7 @@ class Multi30kDataset(Dataset):
         """Lowercase English tokenisation via spaCy."""
         return [tok.text.lower() for tok in self.spacy_en.tokenizer(text)]
 
-    # ── Vocab building ────────────────────────────────────────────────
+    #  Vocab building 
 
     def build_vocab(self, min_freq: int = 2) -> None:
         """
@@ -159,7 +155,7 @@ class Multi30kDataset(Dataset):
         en_stoi = {tok: idx for idx, tok in enumerate(en_tokens)}
         self.tgt_vocab = Vocab(en_stoi, en_tokens)
 
-    # ── Data processing ───────────────────────────────────────────────
+    #  Data processing 
 
     def process_data(self) -> None:
         """
@@ -200,7 +196,7 @@ class Multi30kDataset(Dataset):
                 )
             )
 
-    # ── Dataset protocol ──────────────────────────────────────────────
+    #  Dataset protocol 
 
     def __len__(self) -> int:
         return len(self.processed_data)
@@ -209,9 +205,7 @@ class Multi30kDataset(Dataset):
         return self.processed_data[idx]
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  COLLATE FUNCTION  (for DataLoader)
-# ══════════════════════════════════════════════════════════════════════
 
 def collate_fn(
     batch: List[Tuple[torch.Tensor, torch.Tensor]],
@@ -234,9 +228,7 @@ def collate_fn(
     return src_padded, tgt_padded
 
 
-# ══════════════════════════════════════════════════════════════════════
 #  CONVENIENCE BUILDER
-# ══════════════════════════════════════════════════════════════════════
 
 def build_datasets(min_freq: int = 2):
     """
