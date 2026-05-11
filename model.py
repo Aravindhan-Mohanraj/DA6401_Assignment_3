@@ -552,7 +552,7 @@ class Transformer(nn.Module):
         self._tgt_stoi: dict = _tgt["stoi"]
         self._tgt_itos: list = _tgt["itos"]
 
-        _GDRIVE_FILE_ID = "10SJOX24y8yv1oMWxfDBjNsflCjfyKkXs"
+        _GDRIVE_FILE_ID = "1qNJTfvucBi-ReyK3q8CaN7c5isxG5U-r"
         _ckpt_path = os.path.join(_dir, "checkpoints", "best_checkpoint.pt")
         if not os.path.exists(_ckpt_path):
             os.makedirs(os.path.join(_dir, "checkpoints"), exist_ok=True)
