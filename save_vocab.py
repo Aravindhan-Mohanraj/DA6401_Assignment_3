@@ -11,7 +11,7 @@ import json
 from dataset import build_datasets
 
 print("[INFO] Building vocab from Multi30k training split ...")
-train_ds, _, _ = build_datasets(min_freq=2)
+train_ds, _, _ = build_datasets(min_freq=1)
 
 src_data = {"stoi": train_ds.src_vocab.stoi, "itos": train_ds.src_vocab.itos}
 tgt_data = {"stoi": train_ds.tgt_vocab.stoi, "itos": train_ds.tgt_vocab.itos}

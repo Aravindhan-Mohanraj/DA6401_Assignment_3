@@ -471,8 +471,8 @@ class Transformer(nn.Module):
 
     def __init__(
         self,
-        src_vocab_size: int   = 7853,
-        tgt_vocab_size: int   = 5893,
+        src_vocab_size: int   = 18669,
+        tgt_vocab_size: int   = 9797,
         d_model:    int   = 512,
         N:          int   = 3,
         num_heads:  int   = 8,
@@ -508,8 +508,10 @@ class Transformer(nn.Module):
         self.encoder = Encoder(enc_layer, N)
         self.decoder = Decoder(dec_layer, N)
 
-        # Final linear projection to vocabulary
-        self.projection = nn.Linear(d_model, tgt_vocab_size)
+        # Final linear projection to vocabulary (no bias for weight tying)
+        self.projection = nn.Linear(d_model, tgt_vocab_size, bias=False)
+        # Weight tying: share target embedding ↔ output projection (as in the paper)
+        self.projection.weight = self.tgt_embed.weight
 
         # Store config for checkpoint reconstruction
         self._model_config = {
@@ -640,11 +642,7 @@ class Transformer(nn.Module):
 
     def infer(self, german_sentence: str) -> str:
         """
-        End-to-end German → English translation.
-
-        Accepts a raw German string, tokenizes it with spaCy, runs the
-        Transformer forward pass with autoregressive greedy decoding, and
-        returns the translated English sentence.
+        End-to-end German → English translation using greedy decoding.
 
         Args:
             german_sentence : Raw German input string.
@@ -652,31 +650,28 @@ class Transformer(nn.Module):
         Returns:
             Translated English string.
         """
+        SOS, EOS, PAD = 2, 3, 1
+
         device = next(self.parameters()).device
 
-        # Tokenise German sentence
-        tokens = [tok.text.lower() for tok in self._spacy_de.tokenizer(german_sentence)]
-
-        # Numericalize: <sos>=2, <eos>=3, <unk>=0
-        src_ids = [2] + [self._src_stoi.get(t, 0) for t in tokens] + [3]
-        src = torch.tensor(src_ids, dtype=torch.long).unsqueeze(0).to(device)
+        tokens  = [tok.text.lower() for tok in self._spacy_de.tokenizer(german_sentence)]
+        src_ids = [SOS] + [self._src_stoi.get(t, 0) for t in tokens] + [EOS]
+        src     = torch.tensor(src_ids, dtype=torch.long).unsqueeze(0).to(device)
         src_mask = make_src_mask(src)
 
-        # Autoregressive greedy decode
         self.eval()
         with torch.no_grad():
             memory = self.encode(src, src_mask)
-            ys = torch.tensor([[2]], device=device)   # start with <sos>
+            ys = torch.tensor([[SOS]], device=device)
 
             for _ in range(100):
                 tgt_mask = make_tgt_mask(ys)
                 logits   = self.decode(memory, src_mask, ys, tgt_mask)
                 next_tok = logits[:, -1, :].argmax(dim=-1, keepdim=True)
                 ys = torch.cat([ys, next_tok], dim=1)
-                if next_tok.item() == 3:              # <eos>
+                if next_tok.item() == EOS:
                     break
 
-        # Detokenise  skip <pad>=1, <sos>=2, <eos>=3
-        skip = {1, 2, 3}
+        skip = {PAD, SOS, EOS}
         out_tokens = [self._tgt_itos[i] for i in ys.squeeze(0).tolist() if i not in skip]
         return " ".join(out_tokens)

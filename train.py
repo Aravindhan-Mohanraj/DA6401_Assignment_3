@@ -684,7 +684,7 @@ def run_training_experiment(
 
     #  Dataset & vocab 
     print("[INFO] Loading Multi30k dataset …")
-    train_ds, val_ds, test_ds = build_datasets(min_freq=2)
+    train_ds, val_ds, test_ds = build_datasets(min_freq=1)
 
     src_vocab = train_ds.src_vocab
     tgt_vocab = train_ds.tgt_vocab

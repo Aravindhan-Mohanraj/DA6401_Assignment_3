@@ -1,7 +1,7 @@
 {
-  "run_name": "exp2_5_no_label_smoothing",
-  "best_val_bleu": 38.3366,
-  "best_checkpoint": "experiments/checkpoints/exp2_5_no_smooth_best.pt",
+  "run_name": "best_model_weight_tying_minfreq1",
+  "best_val_bleu": 38.8938,
+  "best_checkpoint": "checkpoints/best_checkpoint.pt",
   "config": {
     "d_model": 512,
     "N": 3,
@@ -9,9 +9,9 @@
     "d_ff": 2048,
     "dropout": 0.1,
     "batch_size": 256,
-    "num_epochs": 40,
+    "num_epochs": 60,
     "warmup_steps": 4000,
-    "label_smoothing": 0.0,
+    "label_smoothing": 0.1,
     "scheduler_type": "noam",
     "fixed_lr": null,
     "use_scaling": true,
@@ -23,5 +23,5 @@
     "grad_clip": 1.0,
     "dataset": "Multi30k (de\u2192en)"
   },
-  "test_bleu": 38.3821
+  "test_bleu": 38.4153
 }
