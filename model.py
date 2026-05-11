@@ -535,7 +535,9 @@ class Transformer(nn.Module):
         try:
             self._spacy_de = spacy.load("de_core_news_sm")
         except OSError:
-            raise OSError("Run: python -m spacy download de_core_news_sm")
+            from spacy.cli import download as spacy_download
+            spacy_download("de_core_news_sm")
+            self._spacy_de = spacy.load("de_core_news_sm")
 
         _dir = os.path.dirname(os.path.abspath(__file__))
 
