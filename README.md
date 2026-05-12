@@ -1,6 +1,6 @@
 # DA6401 - Assignment 3: Implementing the Transformer for Machine Translation
 
-# WandB report - https://wandb.ai/da25s006-indian-institute-of-technology-madras/da6401-a3/reports/DA6401-Assignment-3--VmlldzoxNjg0Njk1MA/edit?draftId=VmlldzoxNjg0Njk1MA==
+# WandB report - https://wandb.ai/da25s006-indian-institute-of-technology-madras/da6401-a3/reports/DA6401-Assignment-3--VmlldzoxNjg0Njk1MA?accessToken=9pcen2tr1y9flt8biqm72ufr0cm3kvy527zouyefvviqy1wfywjnci1xefzptotl
 
 # github link - https://github.com/Aravindhan-Mohanraj/DA6401_Assignment_3.git
 
